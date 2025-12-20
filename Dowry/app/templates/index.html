@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dowry Amount Predictor (Awareness Only)</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💎 Dowry Amount Predictor</h1>
+            <p class="subtitle">⚠️ This tool is for social awareness and experimentation only. Dowry is illegal in India.</p>
+        </header>
+
+        <form method="post" action="/predict" id="predictionForm">
+            <!-- Numeric Inputs Section -->
+            <section class="form-section">
+                <h2>Basic Information</h2>
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="age">
+                            <span class="label-text">Age</span>
+                            <input type="number" id="age" name="age" min="18" max="80" 
+                                   value="{{ form_values.age if form_values else '' }}" required 
+                                   placeholder="Enter age" />
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="monthly_salary">
+                            <span class="label-text">Monthly Salary (INR)</span>
+                            <input type="number" id="monthly_salary" name="monthly_salary" min="0" step="1000" 
+                                   value="{{ form_values.monthly_salary if form_values else '' }}" required 
+                                   placeholder="Enter salary" />
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dropdowns Section -->
+            <section class="form-section">
+                <h2>Professional Details</h2>
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="profession">
+                            <span class="label-text">Profession</span>
+                            <select id="profession" name="profession" required>
+                                {% set options = ["Software Engineer","Government Officer","Private Job","Doctor","Business Owner","Freelancer","CA"] %}
+                                {% for option in options %}
+                                <option value="{{ option }}" {% if form_values and form_values.profession==option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="education_level">
+                            <span class="label-text">Education Level</span>
+                            <select id="education_level" name="education_level" required>
+                                {% set options = ["Diploma","Bachelors","Masters","PhD"] %}
+                                {% for option in options %}
+                                <option value="{{ option }}" {% if form_values and form_values.education_level==option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="location">
+                            <span class="label-text">Location</span>
+                            <select id="location" name="location" required>
+                                {% set options = ["Tier-1","Tier-2","Tier-3","Rural"] %}
+                                {% for option in options %}
+                                <option value="{{ option }}" {% if form_values and form_values.location==option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Radio Buttons Section -->
+            <section class="form-section">
+                <h2>Home Status</h2>
+                <div class="radio-group">
+                    {% set home_options = ["Own", "Rented"] %}
+                    {% for option in home_options %}
+                    <div class="radio-wrapper">
+                        <input type="radio" id="home_{{ option }}" name="home_status" value="{{ option }}" 
+                               {% if form_values and form_values.home_status==option %}checked{% elif not form_values and option=="Own" %}checked{% endif %} required />
+                        <label for="home_{{ option }}" class="radio-label">
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">{{ option }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Family Wealth</h2>
+                <div class="radio-group">
+                    {% set wealth_options = ["Lower", "Middle", "Upper-Middle", "Upper"] %}
+                    {% for option in wealth_options %}
+                    <div class="radio-wrapper">
+                        <input type="radio" id="wealth_{{ option }}" name="family_wealth" value="{{ option }}" 
+                               {% if form_values and form_values.family_wealth==option %}checked{% elif not form_values and option=="Middle" %}checked{% endif %} required />
+                        <label for="wealth_{{ option }}" class="radio-label">
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">{{ option }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Marital Status</h2>
+                <div class="radio-group">
+                    {% set marital_options = ["Single", "Married", "Divorced"] %}
+                    {% for option in marital_options %}
+                    <div class="radio-wrapper">
+                        <input type="radio" id="marital_{{ option }}" name="marital_status" value="{{ option }}" 
+                               {% if form_values and form_values.marital_status==option %}checked{% elif not form_values and option=="Single" %}checked{% endif %} required />
+                        <label for="marital_{{ option }}" class="radio-label">
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">{{ option }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Marriage Type</h2>
+                <div class="radio-group">
+                    {% set marriage_options = ["Arranged", "Love"] %}
+                    {% for option in marriage_options %}
+                    <div class="radio-wrapper">
+                        <input type="radio" id="marriage_{{ option }}" name="marriage_type" value="{{ option }}" 
+                               {% if form_values and form_values.marriage_type==option %}checked{% elif not form_values and option=="Arranged" %}checked{% endif %} required />
+                        <label for="marriage_{{ option }}" class="radio-label">
+                            <span class="radio-custom"></span>
+                            <span class="radio-text">{{ option }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Toggle Switch Section -->
+            <section class="form-section">
+                <h2>Government Job</h2>
+                <div class="toggle-wrapper">
+                    <input type="hidden" id="government_job_hidden" name="government_job" value="{% if form_values and (form_values.government_job==1 or form_values.government_job=='1') %}1{% else %}0{% endif %}" />
+                    <input type="checkbox" id="government_job" 
+                           class="toggle-input" {% if form_values and (form_values.government_job==1 or form_values.government_job=="1") %}checked{% endif %} />
+                    <label for="government_job" class="toggle-label">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">
+                            <span class="toggle-off">No</span>
+                            <span class="toggle-on">Yes</span>
+                        </span>
+                    </label>
+                </div>
+            </section>
+
+            <button type="submit" class="submit-btn">
+                <span>Predict Dowry Amount</span>
+                <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </form>
+
+        {% if result is not none %}
+        <div class="result-card">
+            <div class="result-header">
+                <svg class="result-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3>Prediction Result</h3>
+            </div>
+            <div class="result-value">
+                <span class="result-amount">{{ '{:,.2f}'.format(result) }}</span>
+                <span class="result-unit">lakhs INR</span>
+            </div>
+            <p class="result-note">⚠️ Note: This is a simulated, biased estimate for awareness only.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Handle toggle switch value - update hidden input when checkbox changes
+        const govJobCheckbox = document.getElementById('government_job');
+        const govJobHidden = document.getElementById('government_job_hidden');
+        
+        govJobCheckbox.addEventListener('change', function() {
+            govJobHidden.value = this.checked ? '1' : '0';
+        });
+
+        // Form submission animation
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            const btn = document.querySelector('.submit-btn');
+            btn.classList.add('loading');
+            btn.querySelector('span').textContent = 'Predicting...';
+        });
+    </script>
+</body>
+</html>
