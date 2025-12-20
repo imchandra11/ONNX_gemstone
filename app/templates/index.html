@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemstone Price Predictor</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gemstone Price Predictor</h1>
+            <p>Enter diamond attributes to estimate its price.</p>
+        </header>
+        <form method="post" action="/predict">
+            <div class="grid">
+                <label>Carat
+                    <input type="number" step="0.01" name="carat" value="{{ form_values.carat if form_values else '' }}" required />
+                </label>
+                <label>Cut
+                    <select name="cut" required>
+                        {% set cuts = ["Fair","Good","Very Good","Premium","Ideal"] %}
+                        {% for option in cuts %}
+                        <option value="{{ option }}" {% if form_values and form_values.cut==option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Color
+                    <select name="color" required>
+                        {% set colors = ["D","E","F","G","H","I","J"] %}
+                        {% for option in colors %}
+                        <option value="{{ option }}" {% if form_values and form_values.color==option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Clarity
+                    <select name="clarity" required>
+                        {% set clarities = ["I1","SI2","SI1","VS2","VS1","VVS2","VVS1","IF"] %}
+                        {% for option in clarities %}
+                        <option value="{{ option }}" {% if form_values and form_values.clarity==option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Depth
+                    <input type="number" step="0.01" name="depth" value="{{ form_values.depth if form_values else '' }}" required />
+                </label>
+                <label>Table
+                    <input type="number" step="0.01" name="table" value="{{ form_values.table if form_values else '' }}" required />
+                </label>
+                <label>X
+                    <input type="number" step="0.01" name="x" value="{{ form_values.x if form_values else '' }}" required />
+                </label>
+                <label>Y
+                    <input type="number" step="0.01" name="y" value="{{ form_values.y if form_values else '' }}" required />
+                </label>
+                <label>Z
+                    <input type="number" step="0.01" name="z" value="{{ form_values.z if form_values else '' }}" required />
+                </label>
+            </div>
+            <button type="submit">Predict Price</button>
+        </form>
+
+        {% if result is not none %}
+        <div class="result">
+            <p>Estimated price: <strong>${{ '{:,.0f}'.format(result) }}</strong></p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+
