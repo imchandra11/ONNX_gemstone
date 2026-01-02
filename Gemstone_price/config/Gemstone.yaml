@@ -1,0 +1,93 @@
+# Gemstone Price Prediction Model Configuration
+# lightning.pytorch==2.1.0
+seed_everything: true
+
+trainer:
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        filename: "{epoch}-{val_loss:.2f}.best"
+        monitor: "val_loss"
+        mode: "min"
+        save_top_k: 1
+        verbose: true
+        save_on_train_epoch_end: false
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        filename: "{epoch}.last"
+        monitor: "step"
+        mode: "max"
+        save_top_k: 1
+        verbose: true
+        save_on_train_epoch_end: false
+    - class_path: callbacks.ONNXExportCallback
+      init_args:
+        output_dir: "models"
+        model_name: "gemstone_price_model"
+        input_dim: null  # Will be auto-detected from datamodule
+
+  logger:
+    class_path: lightning.pytorch.loggers.TensorBoardLogger
+    init_args:
+      save_dir: "lightning_logs"
+      name: "GemstonePriceTraining"
+      default_hp_metric: false
+
+  max_epochs: 1
+  num_sanity_val_steps: 1
+  check_val_every_n_epoch: 1
+  log_every_n_steps: 1
+  accelerator: auto
+  devices: auto
+  precision: 16-mixed
+  default_root_dir: "lightning_logs/GemstonePriceTraining"
+
+model:
+  class_path: module.GemstoneLightningModule
+  init_args:
+    lr: 0.0001
+    weight_decay: 0.0
+    lr_scheduler_factor: 0.5
+    lr_scheduler_patience: 5
+    save_dir: "models"
+    name: "gemstone_price_model"
+    model:
+      class_path: model.GemstonePriceModel
+      init_args:
+        input_dim: 0  # Auto-set from datamodule via CLI linking
+        hidden_layers: [128, 64, 32]
+        dropout_rates: [0.15, 0.1, 0.05]
+        activation: "relu"
+
+# Note: Optimizer and LR Scheduler are configured in the model's configure_optimizers() method
+# They use the lr, lr_scheduler_factor, and lr_scheduler_patience from model.init_args automatically
+
+data:
+  class_path: datamodule.GemstoneDataModule
+  init_args:
+    csv_path: "gemstone.csv"
+    batch_size: 256
+    num_workers: 0
+    val_split: 0.2
+    random_seed: 42
+    categorical_cols:
+      - cut
+      - color
+      - clarity
+    numeric_cols:
+      - carat
+      - depth
+      - table
+      - x
+      - y
+      - z
+    target_col: "price"
+    save_preprocessor: true
+    preprocessor_path: "models/preprocessor.joblib"
+
+fit:
+  ckpt_path: null   # for resume training
+
+test:
+  ckpt_path: best   # checkpoint to use for test and predict
+

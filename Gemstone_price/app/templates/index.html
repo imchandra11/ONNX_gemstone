@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemstone Price Predictor</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💎 Gemstone Price Predictor</h1>
+            <p class="subtitle">Predict the price of gemstones based on their characteristics</p>
+        </header>
+
+        <form method="post" action="/predict" id="predictionForm">
+            <!-- Numeric Inputs Section -->
+            <section class="form-section">
+                <h2>Physical Characteristics</h2>
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="carat">
+                            <span class="label-text">Carat</span>
+                            <input type="number" id="carat" name="carat" min="0.1" max="10" step="0.01"
+                                   value="{{ form_values.carat if form_values else '' }}" required 
+                                   placeholder="e.g., 1.5" />
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="depth">
+                            <span class="label-text">Depth (%)</span>
+                            <input type="number" id="depth" name="depth" min="40" max="80" step="0.1"
+                                   value="{{ form_values.depth if form_values else '' }}" required 
+                                   placeholder="e.g., 62.2" />
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="table">
+                            <span class="label-text">Table (%)</span>
+                            <input type="number" id="table" name="table" min="40" max="100" step="0.1"
+                                   value="{{ form_values.table if form_values else '' }}" required 
+                                   placeholder="e.g., 58.0" />
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>Dimensions (mm)</h2>
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="x">
+                            <span class="label-text">Length (x)</span>
+                            <input type="number" id="x" name="x" min="0" max="20" step="0.01"
+                                   value="{{ form_values.x if form_values else '' }}" required 
+                                   placeholder="e.g., 7.27" />
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="y">
+                            <span class="label-text">Width (y)</span>
+                            <input type="number" id="y" name="y" min="0" max="20" step="0.01"
+                                   value="{{ form_values.y if form_values else '' }}" required 
+                                   placeholder="e.g., 7.33" />
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="z">
+                            <span class="label-text">Height (z)</span>
+                            <input type="number" id="z" name="z" min="0" max="20" step="0.01"
+                                   value="{{ form_values.z if form_values else '' }}" required 
+                                   placeholder="e.g., 4.55" />
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dropdowns Section -->
+            <section class="form-section">
+                <h2>Quality Characteristics</h2>
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="cut">
+                            <span class="label-text">Cut</span>
+                            <select id="cut" name="cut" required>
+                                {% set options = ["Fair", "Good", "Very Good", "Premium", "Ideal"] %}
+                                {% for option in options %}
+                                <option value="{{ option }}" {% if form_values and form_values.cut==option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="color">
+                            <span class="label-text">Color</span>
+                            <select id="color" name="color" required>
+                                {% set options = ["D", "E", "F", "G", "H", "I", "J"] %}
+                                {% for option in options %}
+                                <option value="{{ option }}" {% if form_values and form_values.color==option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                    <div class="input-group">
+                        <label for="clarity">
+                            <span class="label-text">Clarity</span>
+                            <select id="clarity" name="clarity" required>
+                                {% set options = ["I1", "SI2", "SI1", "VS2", "VS1", "VVS2", "VVS1", "IF"] %}
+                                {% for option in options %}
+                                <option value="{{ option }}" {% if form_values and form_values.clarity==option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <button type="submit" class="submit-btn">
+                <span>Predict Price</span>
+                <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </form>
+
+        {% if result is not none %}
+        <div class="result-card">
+            <div class="result-header">
+                <svg class="result-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h3>Prediction Result</h3>
+            </div>
+            <div class="result-value">
+                <span class="result-amount">${{ '{:,.2f}'.format(result) }}</span>
+                <span class="result-unit">USD</span>
+            </div>
+            <p class="result-note">Predicted price based on the gemstone characteristics</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Form submission animation
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            const btn = document.querySelector('.submit-btn');
+            btn.classList.add('loading');
+            btn.querySelector('span').textContent = 'Predicting...';
+        });
+    </script>
+</body>
+</html>
+
